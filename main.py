@@ -9,6 +9,12 @@ from collections import OrderedDict
 from rofi import Rofi
 from mpd import MPDClient
 
+host = 'localhost'
+port = '6600'
+database = 'database.json'
+cache_timeout = 600
+rofi_args = []
+
 
 def get_album_release_epoch(x):
     song_data = x[1][0]
@@ -32,10 +38,10 @@ def get_album_release_epoch(x):
 
 
 client = MPDClient()
-client.connect('localhost', 6600)
+client.connect(host, port)
 
-if os.path.isfile('database.json'):
-    reload = time.time() - os.stat('database.json')[stat.ST_MTIME] > 600
+if os.path.isfile(database):
+    reload = time.time() - os.stat(database)[stat.ST_MTIME] > cache_timeout
 else:
     reload = True
 
@@ -59,14 +65,14 @@ if reload:
 
             library_dict[artist][album].append(song)
 
-    with open('database.json', 'w') as f:
+    with open(database, 'w') as f:
         f.write(json.dumps(library_dict))
 
 else:
-    with open('database.json', 'r') as f:
+    with open(database, 'r') as f:
         library_dict = json.loads(f.read())
 
-r = Rofi()
+r = Rofi(rofi_args=rofi_args)
 index, key = r.select('Search artists', library_dict.keys())
 if key == -1:
     sys.exit()
@@ -83,7 +89,6 @@ if key == -1:
 album = albums[index][0]
 
 tracks = albums[index][1]
-# tracks = OrderedDict(albums[index])
 tracks = sorted(tracks, key=lambda x: (int(x['disc'] if 'disc' in x else 1), int(x['track']) if 'track' in x else 0))
 tracks = ["All"] + tracks
 
