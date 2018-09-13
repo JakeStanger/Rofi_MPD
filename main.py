@@ -1,19 +1,40 @@
+import datetime
 import json
 import os
 import stat
 import sys
 import time
+from collections import OrderedDict
 
 from rofi import Rofi
 from mpd import MPDClient
 
 
+def get_album_release_epoch(x):
+    song_data = x[1][0]
+    if 'date' not in song_data:
+        return -99999999999
+    else:
+        date = song_data['date']
+        if '-' not in date:
+            year = int(date)
+            epoch = datetime.datetime(year, 1, 1)
+        else:
+            year, month, day = date.split('-')
+            epoch = datetime.datetime(int(year), int(month), int(day))
+
+        return int(epoch.timestamp())
+
+
 client = MPDClient()
 client.connect('localhost', 6600)
 
-db_age = time.time() - os.stat('database.json')[stat.ST_MTIME]
+if os.path.isfile('database.json'):
+    reload = time.time() - os.stat('database.json')[stat.ST_MTIME] > 600
+else:
+    reload = True
 
-if db_age > 600:
+if reload:
     library_dict = {}
 
     library = client.listallinfo()
@@ -27,10 +48,10 @@ if db_age > 600:
             if album not in library_dict[artist]:
                 library_dict[artist][album] = []
 
-            library_dict[artist][song['album']].append(song['title'])
+            library_dict[artist][song['album']].append(song)
 
     with open('database.json', 'w') as f:
-        f.write(json.dumps(library_dict, indent=4))
+        f.write(json.dumps(library_dict))
 
 else:
     with open('database.json', 'r') as f:
@@ -42,14 +63,29 @@ if key == -1:
     sys.exit()
 
 artist = [*library_dict][index]
-albums = library_dict[artist]
+albums = OrderedDict(library_dict[artist])
+albums = sorted(albums.items(), key=lambda x: get_album_release_epoch(x))
 
 
-index, key = r.select('Search %s' % artist, albums.keys())
+index, key = r.select('Search %s' % artist, [album[0] for album in albums])
 if key == -1:
     sys.exit()
 
-album = [*albums][index]
-tracks = albums[album]
+album = albums[index][0]
 
-index, key = r.select('Search %s' % album, tracks)
+tracks = albums[index][1]
+# tracks = OrderedDict(albums[index])
+tracks = sorted(tracks, key=lambda x: (int(x['disc']), int(x['track'])))
+tracks = ["All"] + tracks
+
+index, key = r.select('Search %s' % album, ['%s.%s - %s' % (t['disc'] if 'disc' in t else '1', t['track'], t['title'])
+                                            if isinstance(t, dict)
+                                            else t for t in tracks])
+
+if index == 0:
+    for track in tracks[1:]:
+        client.add(track['file'])
+    sys.exit()
+
+track = [*tracks][index]
+client.add(track['file'])
