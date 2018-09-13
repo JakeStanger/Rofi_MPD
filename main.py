@@ -79,7 +79,7 @@ album = albums[index][0]
 
 tracks = albums[index][1]
 # tracks = OrderedDict(albums[index])
-tracks = sorted(tracks, key=lambda x: (int(x['disc']), int(x['track'])))
+tracks = sorted(tracks, key=lambda x: (int(x['disc'] if 'disc' in x else 1), int(x['track']) if 'track' in x else 0))
 tracks = ["All"] + tracks
 
 index, key = r.select('Search %s' % album, ['%s.%s - %s' % (t['disc'] if 'disc' in t else '1', t['track'], t['title'])
