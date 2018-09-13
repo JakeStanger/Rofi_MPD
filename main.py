@@ -52,7 +52,7 @@ if reload:
             if album not in library_dict[artist]:
                 library_dict[artist][album] = []
 
-            library_dict[artist][song['album']].append(song)
+            library_dict[artist][album].append(song)
 
     with open('database.json', 'w') as f:
         f.write(json.dumps(library_dict))
