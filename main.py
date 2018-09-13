@@ -44,7 +44,11 @@ if reload:
             if artist not in library_dict:
                 library_dict[artist] = {}
 
-            album = song['album']
+            if 'album' in song:
+                album = song['album']
+            else:
+                album = "[Unknown]"
+
             if album not in library_dict[artist]:
                 library_dict[artist][album] = []
 
