@@ -4,20 +4,71 @@ import os
 import stat
 import sys
 import time
-from collections import OrderedDict
+from enum import Enum
+from pathlib import Path
+from typing import Optional
 
 from rofi import Rofi
 from mpd import MPDClient
+import argparse
 
-host = 'localhost'
-port = '6600'
-database = 'database.json'
+parser = argparse.ArgumentParser()
+parser.add_argument('-b', '--albums', action='store_true', help='Start at a list of all albums')
+parser.add_argument('-t', '--tracks', action='store_true', help='Start at a list of all tracks')
+parser.add_argument('-a', '--all', action='store_true', help='Search all artists, albums and tracks')
+
+parser.add_argument('-f', '--full', action='store_true', help='Force display of full strings [TODO Implement]')
+parser.add_argument('-n', '--no-full', action='store_true', help='Force disable display full strings [TODO Implement]')
+
+parser.add_argument('-c', '--host', help='Use the specified MPD host')
+parser.add_argument('-p', '--port', help='Use the specified MPD port')
+parser.add_argument('-d', '--database', help='Use the specified database '
+                                             '(note this is the database for Rofi-MPD and not MPD\'s database. '
+                                             'You probably do not want to do this).')
+
+parser.add_argument('-r', '--args', nargs='*', help='Command line arguments for rofi. '
+                                                    'Separate each argument with a space.')
+args = parser.parse_args()
+
+if args.full and args.no_full:
+    print('You cannot use full and no-full together.')
+    sys.exit()
+
+short: Optional[bool] = None  # TODO Implement this down below
+if args.full:
+    short = False
+elif args.no_full:
+    short = True
+
+host = args.host or 'localhost'
+port = args.port or '6600'
+database = args.database or str(Path.home()) + '/.local/share/rofi-mpd/database.json'
 cache_timeout = 600
 rofi_args = []
 
 
-def get_album_release_epoch(x):
-    song_data = x[1][0]
+class ItemType(Enum):
+    artist = 'artist'
+    album = 'album'
+    track = 'track'
+
+
+def get_epoch_as_year(epoch: int):
+    if epoch == -99999999999:  # If album is missing year
+        return 0
+    return time.strftime('%Y', time.localtime(epoch))
+
+
+def get_album_release_epoch(album=None, song_data=None):
+    if not song_data:
+        global selection_list
+        song_data = filter(lambda x: x['type'] == ItemType.track
+                                     and (x['data']['artist'] == album['data']['artist'])
+                                     and (x['data']['album'] == album['data']['album']), selection_list)
+
+        song_data = [*song_data][0]
+    # print(song_data)
+    # Put undated albums at the top
     if 'date' not in song_data:
         return -99999999999
     else:
@@ -40,6 +91,7 @@ def get_album_release_epoch(x):
 client = MPDClient()
 client.connect(host, port)
 
+# Check if database exists and is young enough to use
 if os.path.isfile(database):
     reload = time.time() - os.stat(database)[stat.ST_MTIME] > cache_timeout
 else:
@@ -50,20 +102,30 @@ if reload:
 
     library = client.listallinfo()
     for song in library:
+        # Make sure this is a song and not a directory
         if 'artist' in song:
             artist = song['artist']
             if artist not in library_dict:
                 library_dict[artist] = {}
 
+            # Handle songs with missing album tag
             if 'album' in song:
                 album = song['album']
             else:
-                album = "[Unknown]"
+                album = "[Unknown Album]"
 
             if album not in library_dict[artist]:
-                library_dict[artist][album] = []
+                library_dict[artist][album] = {
+                    'epoch': get_album_release_epoch(song_data=song),
+                    'songs': []
+                }
 
-            library_dict[artist][album].append(song)
+            library_dict[artist][album]['songs'].append(song)
+
+    # Create config directory if it does not exist
+    directory = os.path.dirname(database)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
     with open(database, 'w') as f:
         f.write(json.dumps(library_dict))
@@ -73,33 +135,93 @@ else:
         library_dict = json.loads(f.read())
 
 r = Rofi(rofi_args=rofi_args)
-index, key = r.select('Search artists', library_dict.keys())
-if key == -1:
-    sys.exit()
-
-artist = [*library_dict][index]
-albums = OrderedDict(library_dict[artist])
-albums = sorted(albums.items(), key=lambda x: get_album_release_epoch(x))
 
 
-index, key = r.select('Search %s' % artist, [album[0] for album in albums])
-if key == -1:
-    sys.exit()
+def get_display_string(item, full_album, full_track):
+    item_type = item['type']
+    item_data = item['data']
 
-album = albums[index][0]
+    if item_type == ItemType.artist:
+        return item_data
+    elif item_type == ItemType.album:
+        return '[%s] %s%s' % (get_epoch_as_year(item_data['epoch']),
+                              item_data['artist'] + ' - ' if full_album else '', item_data['album'])
+    elif item_type == ItemType.track:
+        if item_data == 'All': return item_data
+        return '%s.%s %s- %s' % (item_data['disc'] if 'disc' in item_data else '1',
+                                 item_data['track'] if 'track' in item_data else '0',
+                                 '%s - %s ' % (item_data['artist'] if 'artist' in item_data else '[Unknown Artist]',
+                                               item_data['album'] if 'album' in item_data else '[Unknown Album]'),
+                                 item_data['title']) \
+            if full_track else item_data['title']
 
-tracks = albums[index][1]
-tracks = sorted(tracks, key=lambda x: (int(x['disc'] if 'disc' in x else 1), int(x['track']) if 'track' in x else 0))
-tracks = ["All"] + tracks
 
-index, key = r.select('Search %s' % album, ['%s.%s - %s' % (t['disc'] if 'disc' in t else '1', t['track'], t['title'])
-                                            if isinstance(t, dict)
-                                            else t for t in tracks])
+def select(title, data, full_album=False, full_track=True):
+    index, key = r.select('Search %s' % title, [get_display_string(item, full_album, full_track) for item in data])
+    # Escape pressed
+    if key == -1:
+        sys.exit()
 
-if index == 0:
-    for track in tracks[1:]:
-        client.add(track['file'])
-    sys.exit()
+    selected = data[index]
 
-track = [*tracks][index]
-client.add(track['file'])
+    selected_type = selected['type']
+    selected_data = selected['data']
+
+    global selection_list
+
+    if selected_type == ItemType.artist:
+        select_album(selection_list, selected_data)
+
+    elif selected_type == ItemType.album:
+        select_track(selection_list, selected_data['artist'], selected_data['album'])
+
+    elif selected_type == ItemType.track:
+        if selected_data == 'All':
+            for track in data[1:]:
+                print(track)
+                client.add(track['data']['file'])
+        else:
+            client.add(selected_data['file'])
+
+
+def select_artist(data, title=None):
+    data = filter(lambda x: x['type'] == ItemType.artist, data)
+    select(title or 'All Artists', [*data])
+
+
+def select_album(data, artist: Optional[str] = None, full_album=False):
+    data = filter(lambda x: x['type'] == ItemType.album and (x['data']['artist'] == artist if artist else True), data)
+    data = sorted([*data], key=lambda x: x['data']['epoch'])
+    select(artist or 'All Albums', data, full_album=full_album)
+
+
+def select_track(data, artist: Optional[str] = None, album: Optional[str] = None, full_track=False):
+    data = filter(lambda x: x['type'] == ItemType.track
+                            and (x['data']['artist'] == artist if artist else True)
+                            and (x['data']['album'] == album if album else True), data)
+
+    data = sorted([*data],
+                  key=lambda x: (int(x['data']['disc'] if 'disc' in x['data'] else 1),
+                                 int(x['data']['track']) if 'track' in x['data'] else 0))
+
+    data = [{'type': ItemType.track, 'data': 'All'}] + data
+    select(album or 'All Tracks', data, full_track=full_track)
+
+
+selection_list = []
+for artist in library_dict:
+    selection_list.append({'type': ItemType.artist, 'data': artist})
+    for album in library_dict[artist]:
+        selection_list.append({'type': ItemType.album, 'data': {'artist': artist, 'album': album,
+                                                                'epoch': library_dict[artist][album]['epoch']}})
+        for track in library_dict[artist][album]['songs']:
+            selection_list.append({'type': ItemType.track, 'data': track})
+
+if args.all:
+    select('All', selection_list, full_album=True)
+elif args.albums:
+    select_album(selection_list, full_album=True)
+elif args.tracks:
+    select_track(selection_list, full_track=True)
+else:
+    select_artist(selection_list)
