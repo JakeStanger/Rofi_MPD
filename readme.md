@@ -3,7 +3,7 @@ This is a very basic MPD client written in Python using Rofi. It allows you to a
 else. I made it because I wanted to be able to quickly add songs and albums to MPD without fiddling 
 with ncmpcpp's awkward search.
 
-This uses your default Rofi theme. It currently only supports
+This uses your default Rofi theme. It currently only supports searching for artists -> albums -> songs in that order.
 
 ## Usage
 * Clone this repo somewhere.
