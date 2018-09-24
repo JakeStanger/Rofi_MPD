@@ -15,10 +15,11 @@ the program and settings.
 * Probably add a keybinding to launch it for you so you can run it from anywhere.
 
 ## Modes
-* Regular: Artist -> Album -> Track -> Add
-* Albums: Album -> Track -> Add
-* Track: Track -> Add
-* All: Artist + Album + Track -> Album / Track / Add -> Track / Add -> Add
+These are all the possible outcomes from each mode. Obviously adding a track will close the program; you will not have to go through any further menus.
+* Regular: Artist -> Album -> Track -> Disc / Add -> Add
+* Albums: Album -> Track -> Disc / Add -> Add
+* Track: Track -> Disc / Add - > Add
+* All: Artist + Album + Track -> Album / Track / Add -> Track / Add -> Disc / Add - > Add
 
 ## Showcase
 ![Alt Text](https://files.jakestanger.com/projects/rofi-mpd.gif)
