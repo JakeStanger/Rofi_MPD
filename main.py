@@ -51,6 +51,7 @@ class ItemType(Enum):
     artist = 'artist'
     album = 'album'
     track = 'track'
+    disc = 'disc'
 
 
 def get_epoch_as_year(epoch: int):
@@ -67,7 +68,6 @@ def get_album_release_epoch(album=None, song_data=None):
                                      and (x['data']['album'] == album['data']['album']), selection_list)
 
         song_data = [*song_data][0]
-    # print(song_data)
     # Put undated albums at the top
     if 'date' not in song_data:
         return -99999999999
@@ -147,7 +147,8 @@ def get_display_string(item, full_album, full_track):
         return '[%s] %s%s' % (get_epoch_as_year(item_data['epoch']),
                               item_data['artist'] + ' - ' if full_album else '', item_data['album'])
     elif item_type == ItemType.track:
-        if item_data == 'All': return item_data
+        if 'text' in item_data:
+            return item_data['text']
         return '%s.%s %s- %s' % (item_data['disc'] if 'disc' in item_data else '1',
                                  item_data['track'] if 'track' in item_data else '0',
                                  '%s - %s ' % (item_data['artist'] if 'artist' in item_data else '[Unknown Artist]',
@@ -155,14 +156,23 @@ def get_display_string(item, full_album, full_track):
                                  item_data['title']) \
             if full_track else item_data['title']
 
+    elif item_type == ItemType.disc:
+        return item_data['text']
 
-def select(title, data, full_album=False, full_track=True):
-    index, key = r.select('Search %s' % title, [get_display_string(item, full_album, full_track) for item in data])
+
+def select(title, data, full_album=False, full_track=True, discs=None):
+    if discs and type(discs) is not set:
+        items = discs
+    else:
+        items = data
+
+    index, key = r.select('Search %s' % title, [get_display_string(item, full_album, full_track)
+                                                for item in items])
     # Escape pressed
     if key == -1:
         sys.exit()
 
-    selected = data[index]
+    selected = items[index]
 
     selected_type = selected['type']
     selected_data = selected['data']
@@ -176,12 +186,21 @@ def select(title, data, full_album=False, full_track=True):
         select_track(selection_list, selected_data['artist'], selected_data['album'])
 
     elif selected_type == ItemType.track:
-        if selected_data == 'All':
-            for track in data[1:]:
-                print(track)
-                client.add(track['data']['file'])
+        if 'text' in selected_data:
+            text = selected_data['text']
+            if text == 'All':
+                for track in data[2:]:
+                    client.add(track['data']['file'])
+            elif text == 'Disc...':
+                select_disc(data, discs, selected_data['album'])
+
         else:
             client.add(selected_data['file'])
+
+    elif selected_type == ItemType.disc:
+        data = [*filter(lambda x: int(x['data']['disc']) == selected_data['value'], data[2:])]
+        for track in data:
+            client.add(track['data']['file'])
 
 
 def select_artist(data, title=None):
@@ -204,8 +223,23 @@ def select_track(data, artist: Optional[str] = None, album: Optional[str] = None
                   key=lambda x: (int(x['data']['disc'] if 'disc' in x['data'] else 1),
                                  int(x['data']['track']) if 'track' in x['data'] else 0))
 
-    data = [{'type': ItemType.track, 'data': 'All'}] + data
-    select(album or 'All Tracks', data, full_track=full_track)
+    discs: set
+    num_discs: int = 1
+    if album:
+        # Get number of discs in album
+        discs = {*map(lambda x: int(x['data']['disc']), data)}
+        num_discs = len(discs)
+
+        if num_discs > 1:
+            data = [{'type': ItemType.track, 'data': {'text': 'Disc...', 'album': album}}] + data
+        data = [{'type': ItemType.track, 'data': {'text': 'All'}}] + data
+
+    select(album or 'All Tracks', data, full_track=full_track, discs=discs if num_discs > 1 else None)
+
+
+def select_disc(data, discs, album: str):
+    discs = [*map(lambda x: {'type': ItemType.disc, 'data': {'text': 'Disc %r' % x, 'value': x}}, discs)]
+    select('Discs for %s' % album, data, discs=discs)
 
 
 selection_list = []
