@@ -22,4 +22,4 @@ These are all the possible outcomes from each mode. Obviously adding a track wil
 * All: Artist + Album + Track -> Album / Track / Add -> Track / Add -> Disc / Add - > Add
 
 ## Showcase
-![Alt Text](https://files.jakestanger.com/projects/rofi-mpd.gif)
+![Alt Text](https://files.jakestanger.com/projects/rofi-mpd2.gif)
