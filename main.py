@@ -189,7 +189,11 @@ def select(title, data, full_album=False, full_track=True, discs=None):
         if 'text' in selected_data:
             text = selected_data['text']
             if text == 'All':
-                for track in data[2:]:
+                num = 1
+                print(data[1])
+                if 'text' in data[1]['data'] and data[1]['data']['text'] == 'Disc...':
+                    num = 2
+                for track in data[num:]:
                     client.add(track['data']['file'])
             elif text == 'Disc...':
                 select_disc(data, discs, selected_data['album'])
@@ -227,7 +231,7 @@ def select_track(data, artist: Optional[str] = None, album: Optional[str] = None
     num_discs: int = 1
     if album:
         # Get number of discs in album
-        discs = {*map(lambda x: int(x['data']['disc']), data)}
+        discs = {*map(lambda x: int(x['data']['disc']) if 'disc' in x['data'] else 1, data)}
         num_discs = len(discs)
 
         if num_discs > 1:
