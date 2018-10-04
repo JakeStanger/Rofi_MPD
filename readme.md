@@ -5,6 +5,8 @@ with ncmpcpp's awkward search.
 
 By default your default Rofi theme is used. You can parse rofi command line arguments in.
 
+You obviously reqiuire Rofi and MPD to be installed (and running in the case of MPD).
+
 ## Usage
 * Clone this repo somewhere.
 * If necessary change the line `client.connect('localhost', 6600)` to match your hostname and port.
