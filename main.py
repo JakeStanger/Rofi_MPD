@@ -102,15 +102,18 @@ def get_album_release_epoch(album=None, song_data=None):
                 date_list.append(1)
 
             # Very basic date validation and correction
-            if date_list[0] < 1 or date_list[0] > 9999:
-                date_list[0] = 1
-            if date_list[1] < 1 or date_list[1] > 12:
-                date_list[1] = 1
-            if date_list[2] < 1 or date_list[2] > 31:
-                date_list[2] = 1
+            year = int(date_list[0])
+            month = int(date_list[1])
+            day = int(date_list[2])
+            if year < 1 or year > 9999:
+                year = 1
+            if month < 1 or month > 12:
+                month = 1
+            if day < 1 or day > 31:
+                day = 1
 
             try:
-                epoch = datetime.datetime(int(date_list[0]), int(date_list[1]), int(date_list[2]))
+                epoch = datetime.datetime(year, month, day)
             except ValueError:
                 return LONG_TIME_AGO
 
