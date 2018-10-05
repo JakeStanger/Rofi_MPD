@@ -79,6 +79,11 @@ def get_album_release_epoch(album=None, song_data=None):
         return -99999999999
     else:
         date = song_data['date']
+
+        # Handle multi-tagged dates
+        if isinstance(date, list):
+            date = date[0]
+
         if date.isnumeric():
             year = int(date)
             epoch = datetime.datetime(year, 1, 1)
