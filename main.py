@@ -77,13 +77,16 @@ def get_album_release_epoch(album=None, song_data=None):
             year = int(date)
             epoch = datetime.datetime(year, 1, 1)
         else:
-            split_char: str
-            if '-' in date:
-                split_char = '-'
-            elif '.' in date:
-                split_char = '.'
-            year, month, day = date.split(split_char)
-            epoch = datetime.datetime(int(year), int(month), int(day))
+            try:
+                split_char: str
+                if '-' in date:
+                    split_char = '-'
+                elif '.' in date:
+                    split_char = '.'
+                year, month, day = date.split(split_char)
+                epoch = datetime.datetime(int(year), int(month), int(day))
+            except:
+                return -99999999999
 
         return int(epoch.timestamp())
 
