@@ -27,9 +27,10 @@ parser.add_argument('-d', '--database', help='Use the specified database '
                                              '(note this is the database for Rofi-MPD and not MPD\'s database. '
                                              'You probably do not want to do this).')
 
+parser.add_argument('-i', '--case-sensitive', action='store_true', help='Enable case sensitivity')
+
 parser.add_argument('-r', '--args', nargs=argparse.REMAINDER, help='Command line arguments for rofi. '
                                                                    'Separate each argument with a space.')
-parser.add_argument('-i', '--case-sensitive', action='store_true', help='Enable case sensitivity')
 
 args = parser.parse_args()
 
