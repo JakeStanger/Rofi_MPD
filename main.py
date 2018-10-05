@@ -27,8 +27,10 @@ parser.add_argument('-d', '--database', help='Use the specified database '
                                              '(note this is the database for Rofi-MPD and not MPD\'s database. '
                                              'You probably do not want to do this).')
 
-parser.add_argument('-r', '--args', nargs='*', help='Command line arguments for rofi. '
-                                                    'Separate each argument with a space.')
+parser.add_argument('-r', '--args', nargs=argparse.REMAINDER, help='Command line arguments for rofi. '
+                                                                   'Separate each argument with a space.')
+parser.add_argument('-i', '--case-sensitive', action='store_true', help='Enable case sensitivity')
+
 args = parser.parse_args()
 
 if args.full and args.no_full:
@@ -45,7 +47,10 @@ host = args.host or 'localhost'
 port = args.port or '6600'
 database = args.database or str(Path.home()) + '/.local/share/rofi-mpd/database.json'
 cache_timeout = 600
-rofi_args = []
+
+rofi_args = args.args or []
+if not args.case_sensitive:
+    rofi_args.append('-i')
 
 
 class ItemType(Enum):
