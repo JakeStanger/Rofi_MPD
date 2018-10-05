@@ -59,9 +59,11 @@ class ItemType(Enum):
     track = 'track'
     disc = 'disc'
 
+LONG_TIME_AGO = -99999999999
+
 
 def get_epoch_as_year(epoch: int):
-    if epoch == -99999999999:  # If album is missing year
+    if epoch == LONG_TIME_AGO:  # If album is missing year
         return 0
     return time.strftime('%Y', time.localtime(epoch))
 
@@ -76,7 +78,7 @@ def get_album_release_epoch(album=None, song_data=None):
         song_data = [*song_data][0]
     # Put undated albums at the top
     if 'date' not in song_data:
-        return -99999999999
+        return LONG_TIME_AGO
     else:
         date = song_data['date']
 
@@ -94,9 +96,22 @@ def get_album_release_epoch(album=None, song_data=None):
             elif '.' in date:
                 split_char = '.'
             date_list = date.split(split_char)
+
             while len(date_list) < 3:
                 date_list.append(1)
-            epoch = datetime.datetime(int(date_list[0]), int(date_list[1]), int(date_list[2]))
+
+            # Very basic date validation and correction
+            if date_list[0] < 1 or date_list[0] > 9999:
+                date_list[0] = 1
+            if date_list[1] < 1 or date_list[1] > 12:
+                date_list[1] = 1
+            if date_list[2] < 1 or date_list[2] > 31:
+                date_list[2] = 1
+
+            try:
+                epoch = datetime.datetime(int(date_list[0]), int(date_list[1]), int(date_list[2]))
+            except ValueError:
+                return LONG_TIME_AGO
 
         return int(epoch.timestamp())
 
