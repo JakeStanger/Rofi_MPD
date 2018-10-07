@@ -66,6 +66,7 @@ class ItemType(Enum):
 
 
 LONG_TIME_AGO = -99999999999
+UNKNOWN_ALBUM = '[Unknown Album]'
 
 
 def get_epoch_as_year(epoch: int):
@@ -149,7 +150,7 @@ if reload:
             if 'album' in song:
                 album = song['album']
             else:
-                album = "[Unknown Album]"
+                album = UNKNOWN_ALBUM
 
             if album not in library_dict[artist]:
                 library_dict[artist][album] = {
@@ -290,6 +291,8 @@ for artist in library_dict:
         selection_list.append({'type': ItemType.album, 'data': {'artist': artist, 'album': album,
                                                                 'epoch': library_dict[artist][album]['epoch']}})
         for track in library_dict[artist][album]['songs']:
+            if 'album' not in track:
+                track['album'] = UNKNOWN_ALBUM
             selection_list.append({'type': ItemType.track, 'data': track})
 
 if args.all:
