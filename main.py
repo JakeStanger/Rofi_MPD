@@ -46,7 +46,11 @@ elif args.no_full:
 
 host = args.host or 'localhost'
 port = args.port or '6600'
+
 database = args.database or str(Path.home()) + '/.local/share/rofi-mpd/database.json'
+if '/' not in database:  # Handle when same directory filenames are passed
+    database = './' + database
+
 cache_timeout = 600
 
 rofi_args = args.args or []
@@ -59,6 +63,7 @@ class ItemType(Enum):
     album = 'album'
     track = 'track'
     disc = 'disc'
+
 
 LONG_TIME_AGO = -99999999999
 
