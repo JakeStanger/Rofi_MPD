@@ -9,7 +9,7 @@ You obviously reqiuire Rofi and MPD to be installed (and running in the case of 
 
 ## Installation
 ### Arch Linux
-Arch users can install the (rofi-mpd-git)[https://aur.archlinux.org/packages/rofi-mpd-git/] package
+Arch users can install the [rofi-mpd-git](https://aur.archlinux.org/packages/rofi-mpd-git/) package
 ### Other
 Clone this repo somewhere.
 
