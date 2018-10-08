@@ -95,6 +95,8 @@ def get_album_release_epoch(album=None, song_data=None):
 
         if date.isnumeric():
             year = int(date)
+            if year < 1 or year > 9999:
+                year = 1
             epoch = datetime.datetime(year, 1, 1)
         else:
             split_char: str
@@ -123,7 +125,7 @@ def get_album_release_epoch(album=None, song_data=None):
             except ValueError:
                 return LONG_TIME_AGO
 
-        return int(epoch.timestamp())
+        return int(epoch.replace(tzinfo=datetime.timezone.utc).timestamp())
 
 
 client = MPDClient()
