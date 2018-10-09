@@ -69,6 +69,20 @@ LONG_TIME_AGO = -99999999999
 UNKNOWN_ALBUM = '[Unknown Album]'
 
 
+def get(data, key):
+    """
+    Since MPD supports any tag being a list,
+    we want to just get the first one.
+
+    Most of the time this is due to tagging issues
+    """
+    prop = data[key]
+    if isinstance(prop, list):
+        return prop[0]
+
+    return prop
+
+
 def get_epoch_as_year(epoch: int):
     if epoch == LONG_TIME_AGO:  # If album is missing year
         return 0
@@ -159,8 +173,7 @@ if reload:
                     'epoch': get_album_release_epoch(song_data=song),
                     'songs': []
                 }
-
-            library_dict[artist][album]['songs'].append(song)
+            library_dict[artist][album]['songs'].append({key: get(song, key) for key in song})
 
     # Create config directory if it does not exist
     directory = os.path.dirname(database)
