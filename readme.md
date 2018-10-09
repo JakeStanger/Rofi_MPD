@@ -7,8 +7,13 @@ By default your default Rofi theme is used. You can parse rofi command line argu
 
 You obviously reqiuire Rofi and MPD to be installed (and running in the case of MPD).
 
+## Installation
+### Arch Linux
+Arch users can install the [rofi-mpd-git](https://aur.archlinux.org/packages/rofi-mpd-git/) package.
+### Other
+Clone this repo somewhere.
+
 ## Usage
-* Clone this repo somewhere.
 * If necessary change the line `client.connect('localhost', 6600)` to match your hostname and port.
 * Install dependencies with `pip install -r requirements.txt`
 * Run program with `python main.py`
