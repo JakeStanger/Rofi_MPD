@@ -10,5 +10,5 @@ setup(
     author='Jake Stanger',
     author_email='jakestanger@gmail.com',
     description='A rofi menu for interacting with MPD.',
-    scripts=['main.py']
+    scripts=['rofi-mpd']
 )
