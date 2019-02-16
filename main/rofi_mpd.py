@@ -298,6 +298,7 @@ def select_disc(data, discs, album: str):
     discs = [*map(lambda x: {'type': ItemType.disc, 'data': {'text': 'Disc %r' % x, 'value': x}}, discs)]
     select('Discs for %s' % album, data, discs=discs)
 
+
 def run():
     selection_list = []
     for artist in library_dict:

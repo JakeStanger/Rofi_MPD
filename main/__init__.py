@@ -1,1 +1,1 @@
-from .main import *
+from .rofi_mpd import *
