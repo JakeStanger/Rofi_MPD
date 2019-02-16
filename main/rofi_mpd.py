@@ -57,6 +57,8 @@ rofi_args = args.args or []
 if not args.case_sensitive:
     rofi_args.append('-i')
 
+selection_list = []
+
 
 class ItemType(Enum):
     artist = 'artist'
@@ -300,7 +302,6 @@ def select_disc(data, discs, album: str):
 
 
 def run():
-    selection_list = []
     for artist in library_dict:
         selection_list.append({'type': ItemType.artist, 'data': artist})
         for album in library_dict[artist]:
