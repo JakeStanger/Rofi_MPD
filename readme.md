@@ -8,9 +8,19 @@ By default your default Rofi theme is used. You can parse rofi command line argu
 You obviously require Rofi and MPD to be installed (and running in the case of MPD).
 
 ## Installation
+
+### Python Package
+
+You can install the [pypi](https://pypi.org/project/Rofi-MPD/) package using `pip3 install Rofi-MPD`. 
+
+Make sure wherever it is installed to is on your path. You can check with `pip3 show Rofi-MPD`.
+
 ### Arch Linux
+
 Arch users can install the [rofi-mpd-git](https://aur.archlinux.org/packages/rofi-mpd-git/) package.
+
 ### Other
+
 Clone this repo somewhere.
 
 ## Usage
