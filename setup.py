@@ -2,10 +2,10 @@ from setuptools import setup
 
 setup(
     name='Rofi-MPD',
-    version='1.0.0',
+    version='1.0.1',
     install_requires=['python-mpd2'],
-    packages=['rofi', 'main'],
-    # py_modules=['rofi', 'main'],
+    packages=['rofi', 'rofi-mpd'],
+    # py_modules=['rofi', 'rofi-mpd'],
     url='https://github.com/JakeStanger/Rofi_MPD',
     license='MIT',
     author='Jake Stanger',
