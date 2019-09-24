@@ -12,14 +12,18 @@ from typing import Optional
 from rofi import Rofi
 from mpd import MPDClient
 import argparse
+import mutagen
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--albums', action='store_true', help='Start at a list of all albums')
 parser.add_argument('-t', '--tracks', action='store_true', help='Start at a list of all tracks')
 parser.add_argument('-a', '--all', action='store_true', help='Search all artists, albums and tracks')
 
-parser.add_argument('-f', '--full', action='store_true', help='Force display of full strings [TODO Implement]')
-parser.add_argument('-n', '--no-full', action='store_true', help='Force disable display full strings [TODO Implement]')
+
+parser.add_argument('-m', '--music-directory', help='Path to your music library', default='~/Music')
+
+# parser.add_argument('-f', '--full', action='store_true', help='Force display of full strings [TODO Implement]')
+# parser.add_argument('-n', '--no-full', action='store_true', help='Force disable display full strings [TODO Implement]')
 
 parser.add_argument('-c', '--host', help='Use the specified MPD host')
 parser.add_argument('-p', '--port', help='Use the specified MPD port')
@@ -34,20 +38,21 @@ parser.add_argument('-r', '--args', nargs=argparse.REMAINDER, help='Command line
 
 args = parser.parse_args()
 
-if args.full and args.no_full:
-    print('You cannot use full and no-full together.')
-    sys.exit()
-
-short: Optional[bool] = None  # TODO Implement this down below
-if args.full:
-    short = False
-elif args.no_full:
-    short = True
+# if args.full and args.no_full:
+#     print('You cannot use full and no-full together.')
+#     sys.exit()
+#
+# short: Optional[bool] = None  # TODO Implement this down below
+# if args.full:
+#     short = False
+# elif args.no_full:
+#     short = True
 
 host = args.host or 'localhost'
 port = args.port or '6600'
+music_library = os.path.expanduser(args.music_directory)
 
-database = args.database or str(Path.home()) + '/.local/share/main/database.json'
+database = args.database or str(Path.home()) + '/.local/share/rofi-mpd/database.json'
 if '/' not in database:  # Handle when same directory filenames are passed
     database = './' + database
 
@@ -297,7 +302,31 @@ def select_track(data, artist: Optional[str] = None, album: Optional[str] = None
 
 
 def select_disc(data, discs, album: str):
-    discs = [*map(lambda x: {'type': ItemType.disc, 'data': {'text': 'Disc %r' % x, 'value': x}}, discs)]
+    def get_disc_name(song):
+        if 'file' in song['data']:
+            tags = mutagen.File(os.path.join(music_library, song['data']['file']))
+            if 'TSST' in tags:
+                return tags['TSST'][0]
+            if 'TXXX:TSST' in tags:
+                return tags['TXXX:TSST'][0]
+
+    disc_names = {}
+    for song in data[2:]:
+        if not 'disc' in song['data']:
+            disc = 1
+        else:
+            disc = int(song['data']['disc'])
+
+        if not disc in disc_names:
+            disc_name = get_disc_name(song)
+            if disc_name:
+                disc_names[disc] = disc_name
+            else:
+                disc_names[disc] = None
+
+    discs = [*map(lambda x: {'type': ItemType.disc, 'data':
+        {'text': 'Disc %r%s' % (x, ' - %s' % disc_names[x] if disc_names[x] else ''), 'value': x}}, discs)]
+
     select('Discs for %s' % album, data, discs=discs)
 
 

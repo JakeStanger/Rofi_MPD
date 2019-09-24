@@ -1,1 +1,2 @@
 python-mpd2
+mutagen

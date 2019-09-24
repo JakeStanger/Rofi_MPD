@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='Rofi-MPD',
-    version='1.0.1',
+    version='1.0.2',
     install_requires=['python-mpd2'],
     packages=['rofi', 'rofi-mpd'],
     # py_modules=['rofi', 'rofi-mpd'],
