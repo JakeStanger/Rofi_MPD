@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='Rofi-MPD',
     version='1.0.2',
-    install_requires=['python-mpd2'],
+    install_requires=['python-mpd2', 'mutagen'],
     packages=['rofi', 'rofi_mpd'],
     # py_modules=['rofi', 'rofi-mpd'],
     url='https://github.com/JakeStanger/Rofi_MPD',
