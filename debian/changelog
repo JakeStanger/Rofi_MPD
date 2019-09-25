@@ -1,0 +1,17 @@
+python3-rofi-mpd (1.1.0c) bionic; urgency=medium
+
+  * Update dependencies
+
+ -- Jake Stanger <mail@jstanger.dev>  Tue, 25 Sep 2019 18:58:22 -0000
+
+python3-rofi-mpd (1.1.0b) bionic; urgency=medium
+
+  * Update dependencies
+
+ -- Jake Stanger <mail@jstanger.dev>  Tue, 24 Sep 2019 10:15:50 -0000
+
+python3-rofi-mpd (1.1.0) bionic; urgency=medium
+
+  * Additional release.
+
+ -- Jake Stanger <mail@jstanger.dev>  Tue, 24 Sep 2019 10:57:24 -0000

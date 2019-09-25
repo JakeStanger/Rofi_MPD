@@ -1,0 +1,12 @@
+Source: python3-rofi-mpd
+Maintainer: Jake Stanger <mail@jstanger.dev>
+Build-Depends: debhelper,dh-python,python3-all,python3-setuptools,python3-mpd,python3-mutagen
+Section: devel
+Priority: optional
+Standards-Version: 1.1.0
+X-Python3-Version: >= 3.6
+
+Package: python3-rofi-mpd
+Architecture: all
+Description: A rofi menu for interacting with MPD written in Python.
+Depends: ${python3:Depends},python3-mpd,python3-mutagen,rofi
