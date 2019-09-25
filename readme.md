@@ -19,6 +19,16 @@ Make sure wherever it is installed to is on your path. You can check with `pip3 
 
 Arch users can install the [rofi-mpd-git](https://aur.archlinux.org/packages/rofi-mpd-git/) package.
 
+### Ubuntu
+
+Users of Ubuntu or Ubuntu derivatives can add my PPA and install the package from there:
+
+```bash
+sudo add-apt-repository ppa:jakestanger/ppa
+sudo apt-get update
+sudo apt install python3-rofi-mpd
+```
+
 ### Other
 
 Clone this repo somewhere.
