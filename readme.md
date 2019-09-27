@@ -29,6 +29,8 @@ sudo apt-get update
 sudo apt install python3-rofi-mpd
 ```
 
+A `.deb` can also be downloaded from the releases page.
+
 ### Other
 
 Clone this repo somewhere.
