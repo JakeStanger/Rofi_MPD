@@ -3,6 +3,8 @@
 This is a simple MPD client for quickly adding albums or tracks using Rofi. 
 It supports a variety of modes, and can group longer albums by disc number (or even disc name).
 
+![Demo Gif](https://f.jstanger.dev/rofi-mpd/demo.gif)
+
 ## Installation
 
 Unsurprisingly, you will require both MPD and Rofi to be installed. You will also require Python >= 3.6.
