@@ -1,13 +1,11 @@
 # Rofi MPD
-This is a very basic MPD client written in Python using Rofi. It allows you to add songs and nothing
-else. I made it because I wanted to be able to quickly add songs and albums to MPD without fiddling
-with ncmpcpp's awkward search.
 
-By default your default Rofi theme is used. You can parse rofi command line arguments in.
-
-You obviously require Rofi and MPD to be installed (and running in the case of MPD).
+This is a simple MPD client for quickly adding albums or tracks using Rofi. 
+It supports a variety of modes, and can group longer albums by disc number (or even disc name).
 
 ## Installation
+
+Unsurprisingly, you will require both MPD and Rofi to be installed. You will also require Python >= 3.6.
 
 ### Python Package
 
@@ -21,7 +19,7 @@ Arch users can install the [rofi-mpd-git](https://aur.archlinux.org/packages/rof
 
 ### Ubuntu
 
-Users of Ubuntu or Ubuntu derivatives can add my PPA and install the package from there:
+Users of Ubuntu or its derivatives can add my PPA and install the package from there:
 
 ```bash
 sudo add-apt-repository ppa:jakestanger/ppa
@@ -29,24 +27,59 @@ sudo apt-get update
 sudo apt install python3-rofi-mpd
 ```
 
+### Debian
+
+A `.deb` can be downloaded from [the releases page](https://github.com/JakeStanger/Rofi_MPD/releases/latest).
+
+### NixOS
+
+I have a pull request currently open [here](https://github.com/NixOS/nixpkgs/pull/69877). 
+For now you can grab the derivation from [here](https://github.com/NixOS/nixpkgs/blob/05a287a4269e3d7512d7122fa60fe67ca404f9a4/pkgs/applications/audio/rofi-mpd/default.nix)
+and add it to an overlay.
+
 ### Other
 
-Clone this repo somewhere.
+Clone this repo somewhere, then run:
+
+```bash
+pip3 install -r requirements.txt
+```
+
+You may wish to use the provided script, in which case it needs to be marked as executable:
+
+```bash
+chmod +x bin/rofi-mpd
+```
 
 ## Usage
-* If necessary change the line `client.connect('localhost', 6600)` to match your hostname and port.
-* Install dependencies with `pip install -r requirements.txt`
-* Run program with `python main.py`
-* See help for the program with `python main.py -h`. Includes different modes for running
-the program and settings.
-* Probably add a keybinding to launch it for you so you can run it from anywhere.
 
-## Modes
-These are all the possible outcomes from each mode. Obviously adding a track will close the program; you will not have to go through any further menus.
-* Regular: Artist -> Album -> Track -> Disc / Add -> Add
-* -b Albums: Album -> Track -> Disc / Add -> Add
-* -t Track: Track -> Disc / Add - > Add
-* -a All: Artist + Album + Track -> Album / Track / Add -> Track / Add -> Disc / Add - > Add
-* -c Host: Use the specified MPD host
-* -p Port: Use the specified MPD port
-* -d Database: Use the specified database
+If installed using a package manager, a script should have automatically been put on your path:
+
+```bash
+rofi-mpd # Normal usage
+rofi-mpd -h # See help
+```
+
+If not, you can either do:
+```bash
+python3 rofi_mpd/rofi_mpd.py
+# or
+bin/rofi-mpd
+```
+
+By default, a list of artists is shown.
+
+The program will take a second or so to load data from MPD. This data is cached for 10 minutes in the database file.
+
+|  Short |  Long             | Description                                                 | Default                               |
+|--------|-------------------|-------------------------------------------------------------|---------------------------------------|
+| -h     | --help            | Shows CLI help and exits                                    |                                       |
+| -b     | --albums          | Shows a list of all albums                                  |                                       |
+|  -t    | --tracks          | Shows a list of tracks                                      |                                       |
+| -a     | -all              |  Shows a mixture of all artists, albums and tracks          |                                       |
+| -m     | --music-directory | Specifies the path to your music library                    | ~/Music                               |
+| -c     | --host            | Specifies the MPD server host                               | localhost                             |
+| -p     | --port            | Specifies the MPD server port                               | 6600                                  |
+| -d     | --database        | Specifies the database file to read cached data from        | ~/.local/share/rofi-mpd/database.json |
+| -i     | --case-sensitive  | Enables case sensitivity                                    | False                                 |
+|  -r    | --args            | Space-separated command line arguments to be passed to Rofi | []                                    |
