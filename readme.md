@@ -76,7 +76,7 @@ The program will take a second or so to load data from MPD. This data is cached 
 | -h     | --help            | Shows CLI help and exits                                    |                                       |
 | -b     | --albums          | Shows a list of all albums                                  |                                       |
 |  -t    | --tracks          | Shows a list of tracks                                      |                                       |
-| -a     | -all              |  Shows a mixture of all artists, albums and tracks          |                                       |
+| -a     | --all              |  Shows a mixture of all artists, albums and tracks          |                                       |
 | -m     | --music-directory | Specifies the path to your music library                    | ~/Music                               |
 | -c     | --host            | Specifies the MPD server host                               | localhost                             |
 | -p     | --port            | Specifies the MPD server port                               | 6600                                  |
