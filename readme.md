@@ -35,9 +35,7 @@ A `.deb` can be downloaded from [the releases page](https://github.com/JakeStang
 
 ### NixOS
 
-I have a pull request currently open [here](https://github.com/NixOS/nixpkgs/pull/69877). 
-For now you can grab the derivation from [here](https://github.com/NixOS/nixpkgs/blob/05a287a4269e3d7512d7122fa60fe67ca404f9a4/pkgs/applications/audio/rofi-mpd/default.nix)
-and add it to an overlay.
+Add `rofi-mpd` to your `environment.systemPackages` or run `nix-env -iA nixos.rofi-mpd`.
 
 ### Other
 
