@@ -3,6 +3,8 @@
 This is a simple MPD client for quickly adding albums or tracks using Rofi. 
 It supports a variety of modes, and can group longer albums by disc number (or even disc name).
 
+![Demo Gif](https://f.jstanger.dev/rofi-mpd/demo.gif)
+
 ## Installation
 
 Unsurprisingly, you will require both MPD and Rofi to be installed. You will also require Python >= 3.6.
@@ -35,7 +37,7 @@ A `.deb` can be downloaded from [the releases page](https://github.com/JakeStang
 
 ### NixOS
 
-NixOS users can add `rofi-mpd` to their configuration files or use `nix-env -i rofi-mpd`
+NixOS users can add `rofi-mpd` to their `environment.systemPackages` or run `nix-env -iA nixos.rofi-mpd`.
 The derivation can be found [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/audio/rofi-mpd/default.nix)
 
 ### Other
