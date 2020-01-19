@@ -1,1 +1,1 @@
-from .rofi_mpd import *
+from .rofi_mpd import run

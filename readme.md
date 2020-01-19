@@ -27,15 +27,16 @@ sudo apt-get update
 sudo apt install python3-rofi-mpd
 ```
 
+Currently it is packaged for Bionic and Disco. Ubuntu users can also download the `.deb` package. 
+
 ### Debian
 
 A `.deb` can be downloaded from [the releases page](https://github.com/JakeStanger/Rofi_MPD/releases/latest).
 
 ### NixOS
 
-I have a pull request currently open [here](https://github.com/NixOS/nixpkgs/pull/69877). 
-For now you can grab the derivation from [here](https://github.com/NixOS/nixpkgs/blob/05a287a4269e3d7512d7122fa60fe67ca404f9a4/pkgs/applications/audio/rofi-mpd/default.nix)
-and add it to an overlay.
+NixOS users can add `rofi-mpd` to their configuration files or use `nix-env -i rofi-mpd`
+The derivation can be found [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/audio/rofi-mpd/default.nix)
 
 ### Other
 
@@ -73,13 +74,44 @@ The program will take a second or so to load data from MPD. This data is cached 
 
 |  Short |  Long             | Description                                                 | Default                               |
 |--------|-------------------|-------------------------------------------------------------|---------------------------------------|
-| -h     | --help            | Shows CLI help and exits                                    |                                       |
-| -b     | --albums          | Shows a list of all albums                                  |                                       |
-|  -t    | --tracks          | Shows a list of tracks                                      |                                       |
-| -a     | --all              |  Shows a mixture of all artists, albums and tracks          |                                       |
+| -h     | --help            | Shows CLI help and exits                                    | -                                     |
+| -w     | --artists         | Shows a list of all artists                                 | True                                  |
+| -b     | --albums          | Shows a list of all albums                                  | False                                 |
+| -t     | --tracks          | Shows a list of all tracks                                  | False                                 |
+| -g     | --genres          | Shows a list of genres                                      | False                                 |
 | -m     | --music-directory | Specifies the path to your music library                    | ~/Music                               |
 | -c     | --host            | Specifies the MPD server host                               | localhost                             |
 | -p     | --port            | Specifies the MPD server port                               | 6600                                  |
-| -d     | --database        | Specifies the database file to read cached data from        | ~/.local/share/rofi-mpd/database.json |
 | -i     | --case-sensitive  | Enables case sensitivity                                    | False                                 |
 |  -r    | --args            | Space-separated command line arguments to be passed to Rofi | []                                    |
+
+## Configuration
+
+Settings are stored in `~/.config/rofi-mpd/config.toml`. Many of these can be overridden using the arguments above so act as defaults.
+
+Below is an example config file with each option explained:
+
+```toml
+music_directory = "~/Music" # Same as MPD `music_directory`
+case_sensitive = false # Should searching be case sensitive by default?
+
+# Should disc name tags be read?
+# This requires opening the file to read its tags.
+# Disc names can be stored in the `TSST` tag.
+enable_disc_names = true
+
+tracks_keep_open = false # Should the track selection menu re-open on selection?
+discs_keep_open = true # Should the disc selection menu re-open on selection?
+
+# Multiple hosts can be defined.
+# If more than one host is defined, a menu is initially opened
+# from which a host is selected.
+# Passing the host argument bypasses this.
+[[hosts]]
+host = "localhost"
+port = 6600
+
+[[hosts]]
+host = "media-server"
+port = 6600
+```
