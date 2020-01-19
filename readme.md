@@ -29,7 +29,7 @@ sudo apt-get update
 sudo apt install python3-rofi-mpd
 ```
 
-Currently it is packaged for Bionic and Disco. Ubuntu users can also download the `.deb` package. 
+Currently it is packaged for Bionic and Disco. It is also possible to use the `.deb` package. 
 
 ### Debian
 
