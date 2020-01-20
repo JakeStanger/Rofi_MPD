@@ -189,7 +189,10 @@ def run():
     rofi = Rofi(rofi_args=rofi_args)
 
     if single_host_mode:
-        host = args.host = config['hosts'][0]
+        if args.host:
+            host = dict(host=args.host, port=args.port or 6600)
+        else:
+            host = config['hosts'][0]
     else:
         host = select_host(config['hosts'], rofi)
 

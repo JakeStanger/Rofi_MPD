@@ -1,3 +1,9 @@
+python3-rofi-mpd (2.0.1) bionic; urgency=medium
+
+  * Fix bug where host argument was ignored
+
+ -- Jake Stanger <mail@jstanger.dev>  Sun, 20 Jan 2020 18:15:17 -0000
+
 python3-rofi-mpd (2.0.0) bionic; urgency=medium
 
   * Completely rewrite
