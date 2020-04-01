@@ -16,6 +16,7 @@ parser.add_argument('-w', '--artists', action='store_true', help='Start at a lis
 parser.add_argument('-b', '--albums', action='store_true', help='Start at a list of all albums')
 parser.add_argument('-t', '--tracks', action='store_true', help='Start at a list of all tracks')
 parser.add_argument('-g', '--genres', action='store_true', help='Start at a list of genres')
+parser.add_argument('-l', '--playlists', action='store_true', help='Show a list of playlists to load')
 
 parser.add_argument('-m', '--music-directory', help='Path to your music library')
 
@@ -110,6 +111,13 @@ def select_disc(tracks, rofi: Rofi, music_library, cycle=True, enable_disc_names
         yield display_discs[index]['num']
 
 
+def select_playlist(playlists, rofi: Rofi):
+    display_playlists = [playlist['playlist'] for playlist in playlists]
+
+    index = select(display_playlists, 'Select playlist', rofi)
+    return playlists[index]
+
+
 def get_album_date(client, album, artist=None):
     if artist:
         tracks = client.find('artist', artist, 'album', album)
@@ -143,7 +151,9 @@ def get_album(client, rofi, albums, artist=None):
 
 
 def get_tracks(client, rofi):
-    if args.tracks:
+    if args.playlists:
+        tracks = client.listplaylists()
+    elif args.tracks:
         tracks = client.find('(title != "")')
     elif args.albums:
         albums = client.list('album')
@@ -201,26 +211,31 @@ def run():
 
     tracks = get_tracks(client, rofi)
 
-    for track in select_track(tracks, rofi,
-                              discs=not (args.tracks or args.genres),
-                              cycle=cycle_tracks):
-        if track == 'All':
-            for track in tracks:
-                client.add(track['file'])
-
-        elif track == 'Disc...':
-            for disc in select_disc(tracks, rofi, music_directory, cycle=cycle_discs, enable_disc_names=config['enable_disc_names']):
-                disc_tracks = [track for track in tracks if track.get('disc') == disc]
-
-                for track in disc_tracks:
+    if args.playlists:
+        playlist = select_playlist(tracks, rofi)
+        client.load(playlist['playlist'])
+    else:
+        for track in select_track(tracks, rofi,
+                                  discs=not (args.tracks or args.genres),
+                                  cycle=cycle_tracks):
+            if track == 'All':
+                for track in tracks:
                     client.add(track['file'])
 
-            if not cycle_discs:
-                break
+            elif track == 'Disc...':
+                for disc in select_disc(tracks, rofi, music_directory, cycle=cycle_discs,
+                                        enable_disc_names=config['enable_disc_names']):
+                    disc_tracks = [track for track in tracks if track.get('disc') == disc]
 
-        else:
-            client.add(track['file'])
+                    for track in disc_tracks:
+                        client.add(track['file'])
 
-    if 'play_on_add' in config and config['play_on_add']:
-        if client.status()['state'] != 'play':
-            client.play()
+                if not cycle_discs:
+                    break
+
+            else:
+                client.add(track['file'])
+
+        if 'play_on_add' in config and config['play_on_add']:
+            if client.status()['state'] != 'play':
+                client.play()
