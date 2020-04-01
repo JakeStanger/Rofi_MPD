@@ -105,6 +105,8 @@ enable_disc_names = true
 tracks_keep_open = false # Should the track selection menu re-open on selection?
 discs_keep_open = true # Should the disc selection menu re-open on selection?
 
+play_on_add = false # Should playback start as soon as tracks are added?
+
 # Multiple hosts can be defined.
 # If more than one host is defined, a menu is initially opened
 # from which a host is selected.
