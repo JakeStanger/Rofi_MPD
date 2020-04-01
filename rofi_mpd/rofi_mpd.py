@@ -220,3 +220,7 @@ def run():
 
         else:
             client.add(track['file'])
+
+    if 'play_on_add' in config and config['play_on_add']:
+        if client.status()['state'] != 'play':
+            client.play()

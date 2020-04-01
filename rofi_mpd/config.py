@@ -11,6 +11,7 @@ def load_default():
         enable_disc_names=True,
         tracks_keep_open=True,
         discs_keep_open=True,
+        play_on_add=False,
         hosts=[
             dict(
                 host='localhost',
