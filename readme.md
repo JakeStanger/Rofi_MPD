@@ -19,22 +19,6 @@ Make sure wherever it is installed to is on your path. You can check with `pip3 
 
 Arch users can install the [rofi-mpd-git](https://aur.archlinux.org/packages/rofi-mpd-git/) package.
 
-### Ubuntu
-
-Users of Ubuntu or its derivatives can add my PPA and install the package from there:
-
-```bash
-sudo add-apt-repository ppa:jakestanger/ppa
-sudo apt-get update
-sudo apt install python3-rofi-mpd
-```
-
-Currently it is packaged for Bionic and Disco. It is also possible to use the `.deb` package. 
-
-### Debian
-
-A `.deb` can be downloaded from [the releases page](https://github.com/JakeStanger/Rofi_MPD/releases/latest).
-
 ### NixOS
 
 NixOS users can add `rofi-mpd` to their `environment.systemPackages` or run `nix-env -iA nixos.rofi-mpd`.
