@@ -85,8 +85,10 @@ The program will take a second or so to load data from MPD. This data is cached 
 | -m     | --music-directory | Specifies the path to your music library                    | ~/Music                               |
 | -c     | --host            | Specifies the MPD server host                               | localhost                             |
 | -p     | --port            | Specifies the MPD server port                               | 6600                                  |
+|        | --play            | Start playback on track add                                 | None (uses config value)              |
+|        | --noplay          | Do not start playback on track add                          | None (uses config value)              |
 | -i     | --case-sensitive  | Enables case sensitivity                                    | False                                 |
-| -r    | --args            | Space-separated command line arguments to be passed to Rofi | []                                     |
+| -r     | --args            | Space-separated command line arguments to be passed to Rofi | []                                    |
 
 ## Configuration
 
