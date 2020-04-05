@@ -23,6 +23,11 @@ parser.add_argument('-m', '--music-directory', help='Path to your music library'
 parser.add_argument('-c', '--host', help='Use the specified MPD host')
 parser.add_argument('-p', '--port', help='Use the specified MPD port')
 
+parser.add_argument('--play', action='store_true', help='Start playback on add (overrides config)', dest='play_on_add',
+                    default=None)
+parser.add_argument('--noplay', action='store_false', help='Do not start playback on add (overrides config)',
+                    dest='play_on_add', default=None)
+
 parser.add_argument('-i', '--case-sensitive', action='store_true', help='Enable case sensitivity')
 
 parser.add_argument('-r', '--args', nargs=argparse.REMAINDER, help='Command line arguments for rofi. '
@@ -236,6 +241,13 @@ def run():
             else:
                 client.add(track['file'])
 
-        if 'play_on_add' in config and config['play_on_add']:
-            if client.status()['state'] != 'play':
-                client.play()
+    play_on_add = None
+    if 'play_on_add' in config:
+        play_on_add = config['play_on_add']
+
+    if args.play_on_add is not None:
+        play_on_add = args.play_on_add
+
+    if play_on_add:
+        if client.status()['state'] != 'play':
+            client.play()
