@@ -56,8 +56,9 @@ def select_artist(artists, rofi: Rofi):
 
 
 def select_album(albums, rofi: Rofi):
-    index = select(['[%s] %s' % (get_epoch_as_year(album['date']), album['album']) for album in albums],
-                   'Select album', rofi)
+    index = select(
+        ['[%s] %s' % (get_epoch_as_year(int(get_tag('date', album))), get_tag('album', album)) for album in albums],
+        'Select album', rofi)
 
     return albums[index]['album']
 
@@ -71,17 +72,17 @@ def select_genre(genres, rofi: Rofi):
 def select_track(tracks, rofi: Rofi, discs=False, cycle=True):
     extras = ['All']
     if discs:
-        disc_numbers = set([track['disc'] if 'disc' in track else 1 for track in tracks])
+        disc_numbers = set([get_tag('disc', track) for track in tracks])
         if len(disc_numbers) > 1:
             extras.append('Disc...')
 
     display_tracks = extras + [
         '[%s.%s]  \t%s [%s - %s]' % (
-            track['disc'] if 'disc' in track else 1,
-            track['track'] if 'track' in track else 0,
-            track['title'] if 'title' in track else 'N/A',
-            track['album'] if 'album' in track else 'N/A',
-            track['artist'] if 'artist' in track else 'N/A')
+            get_tag('disc', track),
+            get_tag('track', track),
+            get_tag('title', track),
+            get_tag('album', track),
+            get_tag('artist', track))
         for track in tracks]
 
     prev_index = -1
@@ -98,7 +99,7 @@ def select_track(tracks, rofi: Rofi, discs=False, cycle=True):
 def select_disc(tracks, rofi: Rofi, music_library, cycle=True, enable_disc_names=True):
     discs = {}
     for track in tracks:
-        disc_num = track.get('disc') or 1
+        disc_num = get_tag('disc', track)
         if disc_num not in discs:
             discs[disc_num] = (get_disc_name(track, music_library, enable_disc_names))
 
@@ -131,16 +132,35 @@ def get_album_date(client, album, artist=None):
     if len(tracks) > 0:
         for track in tracks:
             if 'date' in track:
-                return get_epoch_from_date(track['date'])
+                return get_epoch_from_date(get_tag('date', track))
 
     return LONG_TIME_AGO
+
+
+def get_tag(tag: str, track):
+    if tag == 'track' or tag == 'disc':
+        func = int
+        default = 1
+    else:
+        func = str
+        default = 'N/A'
+
+    if tag in track:
+        value = track[tag]
+
+        if type(value) == list:
+            return func(value[0])
+        else:
+            return func(value)
+    else:
+        return default
 
 
 def get_disc_name(track, music_library, enable_disc_names=True):
     name = 'Disc %s' % track.get('disc') or 1
 
     if enable_disc_names:
-        tags = mutagen.File(os.path.join(music_library, track['file']))
+        tags = mutagen.File(os.path.join(music_library, get_tag('file', track)))
         if 'TSST' in tags:
             name += ': ' + tags['TSST'][0]
         if 'TXXX:TSST' in tags:
@@ -185,10 +205,10 @@ def get_tracks(client, rofi):
         tracks = client.find('artist', artist, 'album', album)
 
     tracks.sort(key=lambda t: (
-        t['artist'] if 'artist' in t else '',
-        t['album'] if 'album' in t else '',
-        int(t['disc']) if 'disc' in t else 1,
-        int(t['track']) if 'track' in t else 1
+        get_tag('artist', t),
+        get_tag('album', t),
+        get_tag('disc', t),
+        get_tag('track', t)
     ))
 
     return tracks
@@ -232,21 +252,21 @@ def run():
                                   cycle=cycle_tracks):
             if track == 'All':
                 for track in tracks:
-                    client.add(track['file'])
+                    client.add(get_tag('file', track))
 
             elif track == 'Disc...':
                 for disc in select_disc(tracks, rofi, music_directory, cycle=cycle_discs,
                                         enable_disc_names=config['enable_disc_names']):
-                    disc_tracks = [track for track in tracks if track.get('disc') == disc]
+                    disc_tracks = [track for track in tracks if get_tag('disc', track) == disc]
 
                     for track in disc_tracks:
-                        client.add(track['file'])
+                        client.add(get_tag('file', track))
 
                 if not cycle_discs:
                     break
 
             else:
-                client.add(track['file'])
+                client.add(get_tag('file', track))
 
     play_on_add = None
     if 'play_on_add' in config:
