@@ -184,6 +184,13 @@ def get_tracks(client, rofi):
 
         tracks = client.find('artist', artist, 'album', album)
 
+    tracks.sort(key=lambda t: (
+        t['artist'] if 'artist' in t else '',
+        t['album'] if 'album' in t else '',
+        int(t['disc']) if 'disc' in t else 1,
+        int(t['track']) if 'track' in t else 1
+    ))
+
     return tracks
 
 
