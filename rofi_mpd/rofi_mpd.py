@@ -12,7 +12,7 @@ from .config import load_config
 from .date_parser import LONG_TIME_AGO, get_epoch_from_date, get_epoch_as_year
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-w', '--artists', action='store_true', help='Start at a list of all albums. This is the default')
+parser.add_argument('-w', '--artists', action='store_true', help='Start at a list of all artists. This is the default')
 parser.add_argument('-b', '--albums', action='store_true', help='Start at a list of all albums')
 parser.add_argument('-t', '--tracks', action='store_true', help='Start at a list of all tracks')
 parser.add_argument('-g', '--genres', action='store_true', help='Start at a list of genres')
